@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Bitcoin Well</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a6c1ee, #f8f9fa);
+    }
+
+    #output {
+      font-family: monospace;
+      font-size: 30px;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    #infiniteCounter {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .falling-number {
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 30px;
+      color: #ff8c00;
+      opacity: 1;
+      animation-name: fall;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+    }
+
+    .falling-number::before {
+      content: "\25CE";
+      font-size: 30px;
+      color: #ff8c00;
+      display: inline-block;
+      transform: rotate(45deg);
+    }
+
+    .well-container {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .well {
+      width: 150px;
+      height: 150px;
+      background-color: #FFD700;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .well::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background-color: #8B4513;
+      border-radius: 50%;
+    }
+
+    @keyframes fall {
+      0% {
+        top: -50px;
+        opacity: 1;
+      }
+
+      100% {
+        top: 100vh;
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Welcome to BitWell</h1>
+  <div id="output"></div>
+  <button onclick="incrementInfiniteCounter()">Make a Wish</button>
+  <div id="infiniteCounter">Wishes Made: 0</div>
+
+  <div class="well-container">
+    <div class="well"></div>
+  </div>
+
+  <script>
+    var infiniteCounter = 0;
+
+    function incrementInfiniteCounter() {
+      infiniteCounter++;
+      document.getElementById("infiniteCounter").innerHTML = "Wishes Made: " + infiniteCounter;
+
+      // Create a new falling number element
+      var fallingNumber = document.createElement("span");
+      fallingNumber.classList.add("falling-number");
+      fallingNumber.textContent = infiniteCounter;
+
+      // Append the falling number to the body
+      document.body.appendChild(fallingNumber);
+
+      // Remove the falling number after the animation finishes
+      setTimeout(function() {
+        fallingNumber.remove();
+      }, 2000);
+    }
+  </script>
+</body>
+
+</html>
