@@ -1,125 +1,71 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <title>Bitcoin Well</title>
-  <style>
-    body {
-      background: linear-gradient(to right, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a6c1ee, #f8f9fa);
-    }
-
-    #output {
-      font-family: monospace;
-      font-size: 30px;
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    #infiniteCounter {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 18px;
-    }
-
-    .falling-number {
-      position: absolute;
-      top: -50px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 30px;
-      color: #ff8c00;
-      opacity: 1;
-      animation-name: fall;
-      animation-duration: 2s;
-      animation-timing-function: ease-in-out;
-    }
-
-    .falling-number::before {
-      content: "\25CE";
-      font-size: 30px;
-      color: #ff8c00;
-      display: inline-block;
-      transform: rotate(45deg);
-    }
-
-    .well-container {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      height: 200px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .well {
-      width: 150px;
-      height: 150px;
-      background-color: #FFD700;
-      border-radius: 50%;
-      position: relative;
-    }
-
-    .well::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100px;
-      height: 100px;
-      background-color: #8B4513;
-      border-radius: 50%;
-    }
-
-    @keyframes fall {
-      0% {
-        top: -50px;
-        opacity: 1;
-      }
-
-      100% {
-        top: 100vh;
-        opacity: 0;
-      }
-    }
-  </style>
+    <title>Message System</title>
 </head>
-
 <body>
-  <h1>Welcome to BitWell</h1>
-  <div id="output"></div>
-  <button onclick="incrementInfiniteCounter()">Make a Wish</button>
-  <div id="infiniteCounter">Wishes Made: 0</div>
+    <h1>Message System</h1>
 
-  <div class="well-container">
-    <div class="well"></div>
-  </div>
+    <!-- Input fields for sending a message -->
+    <label for="toChainId">To Chain ID:</label>
+    <input type="number" id="toChainId" placeholder="Enter Chain ID"><br>
 
-  <script>
-    var infiniteCounter = 0;
+    <label for="toAddress">To Address:</label>
+    <input type="text" id="toAddress" placeholder="Enter Address"><br>
 
-    function incrementInfiniteCounter() {
-      infiniteCounter++;
-      document.getElementById("infiniteCounter").innerHTML = "Wishes Made: " + infiniteCounter;
+    <label for="message">Message:</label>
+    <textarea id="message" rows="4" cols="50" placeholder="Enter your message"></textarea><br>
 
-      // Create a new falling number element
-      var fallingNumber = document.createElement("span");
-      fallingNumber.classList.add("falling-number");
-      fallingNumber.textContent = infiniteCounter;
+    <label for="feeAmount">Fee Amount:</label>
+    <input type="number" id="feeAmount" placeholder="Enter Fee Amount"><br>
 
-      // Append the falling number to the body
-      document.body.appendChild(fallingNumber);
+    <button onclick="sendMessage()">Send Message</button>
 
-      // Remove the falling number after the animation finishes
-      setTimeout(function() {
-        fallingNumber.remove();
-      }, 2000);
-    }
-  </script>
+    <!-- Display received messages -->
+    <h2>Received Messages:</h2>
+    <div id="receivedMessages"></div>
+
+    <script>
+        async function sendMessage() {
+            const toChainId = document.getElementById("toChainId").value;
+            const toAddress = document.getElementById("toAddress").value;
+            const message = document.getElementById("message").value;
+            const feeAmount = document.getElementById("feeAmount").value;
+
+            // You'll need to use a JavaScript library like Web3.js or ethers.js
+            // to interact with your smart contract and call the sendEncryptedMessage function.
+            // Below is a simplified example using Web3.js:
+
+            // const contractAddress = "YOUR_SMART_CONTRACT_ADDRESS";
+            // const abi = [...]; // ABI of your smart contract
+            // const web3 = new Web3("YOUR_ETHEREUM_NODE_URL");
+            // const contract = new web3.eth.Contract(abi, contractAddress);
+
+            // Use web3.js to send the message to the smart contract
+            // const result = await contract.methods.sendEncryptedMessage(
+            //     toChainId,
+            //     toAddress,
+            //     message,
+            //     feeAmount
+            // ).send({ from: "YOUR_SENDER_ADDRESS" });
+
+            // Handle the result as needed
+            // ...
+
+            // For now, let's assume the message was sent successfully.
+            const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Message: ${message}, Fee Amount: ${feeAmount}`;
+            
+            // Display the sent message
+            const sentMessageElement = document.createElement("p");
+            sentMessageElement.textContent = sentMessage;
+            document.getElementById("receivedMessages").appendChild(sentMessageElement);
+
+            // Clear input fields
+            document.getElementById("toChainId").value = "";
+            document.getElementById("toAddress").value = "";
+            document.getElementById("message").value = "";
+            document.getElementById("feeAmount").value = "";
+        }
+    </script>
 </body>
-
 </html>
