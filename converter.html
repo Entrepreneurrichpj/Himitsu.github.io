@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message to Images</title>
+</head>
+<body>
+    <h1>Message to Images</h1>
+
+    <label for="message">Enter your message:</label>
+    <textarea id="message" rows="4" cols="50"></textarea><br>
+
+    <button onclick="convertToImages()">Convert to Images</button>
+
+    <!-- Container to display the generated images -->
+    <div id="imageContainer"></div>
+
+    <script>
+        // Function to convert a message into 26-based images
+        function convertToImages() {
+            // Get the message from the textarea
+            const message = document.getElementById("message").value.toLowerCase();
+            const imageContainer = document.getElementById("imageContainer");
+            
+            // Define an array of image URLs (representing a-z)
+            const imageUrls = [
+                "a.png",
+                "b.png",
+                "c.png",
+                // ... Add URLs for d-z images
+            ];
+
+            // Clear the existing content in the imageContainer
+            imageContainer.innerHTML = "";
+
+            // Iterate through the characters in the message
+            for (let i = 0; i < message.length; i++) {
+                const char = message[i];
+                if (char >= "a" && char <= "z") {
+                    // Convert the character to its corresponding image
+                    const charIndex = char.charCodeAt(0) - "a".charCodeAt(0);
+                    const imageUrl = imageUrls[charIndex];
+
+                    // Create an image element and append it to the container
+                    const image = document.createElement("img");
+                    image.src = imageUrl;
+                    image.alt = char;
+                    imageContainer.appendChild(image);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
