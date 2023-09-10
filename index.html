@@ -485,14 +485,14 @@
 	}
 ]]; // Replace with your contract's ABI
         const contractAddress = '0x070a62419093fc391ad196980037e6488bd02814'; // Replace with your contract's address
-        const contract = new web3.eth.Contract(contractAbi, contractAddress);
-	console.log(contract);
+const contract ;
        
 
         // Function to connect the wallet
         async function connectWallet() {
             if (typeof web3 !== 'undefined') {
                 web3 = new Web3(web3.currentProvider);
+		    contract = new web3.eth.Contract(contractAbi, contractAddress);
                 try {
                     accounts = await web3.eth.requestAccounts();
                     document.getElementById('connectionStatus').textContent = 'Connected to Wallet';
