@@ -1,77 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Message System</title>
-</head>
-<style>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,initial-scale=1" name="viewport">
+    <title>Message System with Ethereum Wallet Integration</title>
+    <style>
         body {
-            background: linear-gradient(to right, #ffffff, #f0f0f0);
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-
-        #left-side {
-            width: 40%;
-            padding: 20px;
-        }
-
-        #right-side {
-            width: 60%;
-            padding: 20px;
-            background-color: #ffffff;
-            border-left: 1px solid #d0d0d0;
-        }
-
-        h1 {
             text-align: center;
+            margin: 20px;
         }
 
-        label {
-            font-weight: bold;
+        h1, h2 {
+            color: #007bff;
         }
 
-        input, textarea {
-            width: 100%;
+        input[type="number"], input[type="text"], textarea {
+            width: 80%;
             padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            font-size: 16px;
         }
 
         button {
-            padding: 10px 20px;
             background-color: #007bff;
-            color: #fff;
+            color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        h2 {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         #receivedMessages {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f0f0f0;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: left;
         }
 
         #connectionStatus {
-            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
         }
+    </style>
+</head>
 <body>
-    <h1>Message System</h1>
+    <h1>Message System with Ethereum Wallet Integration</h1>
 
     <!-- Input fields for sending a message -->
     <label for="toChainId">To Chain ID:</label>
@@ -97,94 +70,51 @@
     <button onclick="checkWalletConnection()">Check Wallet Connection</button>
     <div id="connectionStatus"></div>
 
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    <!-- Include WalletConnect library -->
+    <script src="https://cdn.jsdelivr.net/npm/walletconnect-browser@1.1.4/dist/walletconnect.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
     <script>
-        // Replace with the actual contract address and ABI
-        const contractAddress = "0x8abdc2cBf215cD242b61A4C748aa5647240817D6";
-        const contractAbi = [
-            // Define the ABI of your smart contract here
-            0xd6ead4c54abd44e904520f87788eeb7c588d8c6869374968c8006b9178be339f
-        ];
-
-        // Replace with your Ethereum node URL
-        const ethereumNodeUrl = "http://localhost:8545/";
-
-        async function initWeb3() {
-            if (typeof web3 !== 'undefined') {
-                window.web3 = new Web3(web3.currentProvider);
-            } else {
-                window.web3 = new Web3(new Web3.providers.HttpProvider(ethereumNodeUrl));
-            }
-
-            const accounts = await web3.eth.getAccounts();
-
-            if (accounts.length === 0) {
-                alert("Please connect to MetaMask or another Ethereum wallet.");
-            } else {
-                const userAddress = accounts[0];
-                // You can also update a UI element to display the user's address.
-            }
-        }
+        var web3;
+        var accounts;
 
         async function connectWallet() {
-            try {
-                // Request user's permission to connect their Ethereum wallet
-                await ethereum.request({ method: 'eth_requestAccounts' });
-                
-                // Check if the user is connected
-                if (ethereum.selectedAddress) {
-                    const userAddress = ethereum.selectedAddress;
-                    alert(`Connected Ethereum Address: ${userAddress}`);
-                } else {
-                    alert("Wallet connection was canceled or failed.");
+            if (typeof web3 !== 'undefined') {
+                web3 = new Web3(web3.currentProvider);
+                try {
+                    accounts = await web3.eth.requestAccounts();
+                    document.getElementById('connectionStatus').textContent = 'Connected to Wallet';
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('connectionStatus').textContent = 'Failed to Connect to Wallet';
                 }
-            } catch (error) {
-                console.error("Wallet Connection Error:", error.message);
+            } else {
+                document.getElementById('connectionStatus').textContent = 'Web3 not available. Please install MetaMask or use a compatible Ethereum wallet.';
             }
         }
 
-        async function sendMessage() {
-    const toChainId = document.getElementById("toChainId").value;
-    const toAddress = document.getElementById("toAddress").value;
-    const plaintextMessage = document.getElementById("message").value;
-    const feeAmount = web3.utils.toWei(document.getElementById("feeAmount").value, 'ether');
+        function sendMessage() {
+            // Your code for sending the message using web3.eth.sendTransaction
+            // Example:
+            // var toChainId = document.getElementById('toChainId').value;
+            // var toAddress = document.getElementById('toAddress').value;
+            // var message = document.getElementById('message').value;
+            // var feeAmount = document.getElementById('feeAmount').value;
+            // var senderAddress = accounts[0];
 
-    const accounts = await web3.eth.getAccounts();
-    const senderAddress = accounts[0];
+            // Your code here to send the message using web3.eth.sendTransaction
 
-    const contract = new web3.eth.Contract(contractAbi, contractAddress);
+            // After sending, update the UI to display a confirmation or error message
+        }
 
-    // Encrypt the message using SHA-256
-    const encryptedMessage = CryptoJS.SHA256(plaintextMessage).toString();
-
-    try {
-        const result = await contract.methods.sendEncryptedMessage(
-            toChainId,
-            toAddress,
-            encryptedMessage, // Send the encrypted message
-            feeAmount
-        ).send({ from: senderAddress });
-
-        const transactionHash = result.transactionHash;
-        console.log("Transaction Hash:", transactionHash);
-
-        const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Encrypted Message: ${encryptedMessage}, Fee Amount (ETH): ${web3.utils.fromWei(feeAmount, 'ether')}`;
-        const sentMessageElement = document.createElement("p");
-        sentMessageElement.textContent = sentMessage;
-        document.getElementById("receivedMessages").appendChild(sentMessageElement);
-
-        document.getElementById("toChainId").value = "";
-        document.getElementById("toAddress").value = "";
-        document.getElementById("message").value = "";
-        document.getElementById("feeAmount").value = "";
-    } catch (error) {
-        console.error("Transaction Error:", error.message);
-    }
-}
-        window.addEventListener('load', function () {
-            initWeb3();
-        });
+        // Function to check wallet connection status
+        function checkWalletConnection() {
+            if (web3 && accounts && accounts.length > 0) {
+                document.getElementById('connectionStatus').textContent = 'Connected to Wallet';
+            } else {
+                document.getElementById('connectionStatus').textContent = 'Not connected to a wallet';
+            }
+        }
     </script>
 </body>
 </html>
