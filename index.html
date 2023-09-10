@@ -16,7 +16,7 @@
     <label for="message">Message:</label>
     <textarea id="message" rows="4" cols="50" placeholder="Enter your message"></textarea><br>
 
-    <label for="feeAmount">Fee Amount:</label>
+    <label for="feeAmount">Fee Amount (ETH):</label>
     <input type="number" id="feeAmount" placeholder="Enter Fee Amount"><br>
 
     <button onclick="sendMessage()">Send Message</button>
@@ -25,47 +25,83 @@
     <h2>Received Messages:</h2>
     <div id="receivedMessages"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+
     <script>
+        // Replace with the actual contract address and ABI
+        const contractAddress = "0x8abdc2cBf215cD242b61A4C748aa5647240817D6";
+        const contractAbi = [
+            // Define the ABI of your smart contract here
+            0xd6ead4c54abd44e904520f87788eeb7c588d8c6869374968c8006b9178be339f
+        ];
+
+        // Replace with your Ethereum node URL
+        const ethereumNodeUrl = "YOUR_ETHEREUM_NODE_URL";
+
+        async function initWeb3() {
+            // Check if Web3 is already present
+            if (typeof web3 !== 'undefined') {
+                window.web3 = new Web3(web3.currentProvider);
+            } else {
+                // If no injected web3 instance is detected, fallback to the node URL
+                window.web3 = new Web3(new Web3.providers.HttpProvider(ethereumNodeUrl));
+            }
+
+            // Check if the user is connected to MetaMask or another provider
+            const accounts = await web3.eth.getAccounts();
+
+            if (accounts.length === 0) {
+                alert("Please connect to MetaMask or another Ethereum wallet.");
+            }
+        }
+
         async function sendMessage() {
             const toChainId = document.getElementById("toChainId").value;
             const toAddress = document.getElementById("toAddress").value;
             const message = document.getElementById("message").value;
-            const feeAmount = document.getElementById("feeAmount").value;
+            const feeAmount = web3.utils.toWei(document.getElementById("feeAmount").value, 'ether'); // Convert to Wei
 
-            // You'll need to use a JavaScript library like Web3.js or ethers.js
-            // to interact with your smart contract and call the sendEncryptedMessage function.
-            // Below is a simplified example using Web3.js:
+            // Get the sender's Ethereum address
+            const accounts = await web3.eth.getAccounts();
+            const senderAddress = accounts[0]; // Assuming the first account is the sender
 
-            // const contractAddress = "YOUR_SMART_CONTRACT_ADDRESS";
-            // const abi = [...]; // ABI of your smart contract
-            // const web3 = new Web3("YOUR_ETHEREUM_NODE_URL");
-            // const contract = new web3.eth.Contract(abi, contractAddress);
+            // Create a contract instance
+            const contract = new web3.eth.Contract(contractAbi, contractAddress);
 
-            // Use web3.js to send the message to the smart contract
-            // const result = await contract.methods.sendEncryptedMessage(
-            //     toChainId,
-            //     toAddress,
-            //     message,
-            //     feeAmount
-            // ).send({ from: "YOUR_SENDER_ADDRESS" });
+            try {
+                // Send the message to the smart contract
+                const result = await contract.methods.sendEncryptedMessage(
+                    toChainId,
+                    toAddress,
+                    message,
+                    feeAmount
+                ).send({ from: senderAddress });
 
-            // Handle the result as needed
-            // ...
+                // Transaction was successful
+                const transactionHash = result.transactionHash;
+                console.log("Transaction Hash:", transactionHash);
 
-            // For now, let's assume the message was sent successfully.
-            const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Message: ${message}, Fee Amount: ${feeAmount}`;
-            
-            // Display the sent message
-            const sentMessageElement = document.createElement("p");
-            sentMessageElement.textContent = sentMessage;
-            document.getElementById("receivedMessages").appendChild(sentMessageElement);
+                // Display the sent message
+                const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Message: ${message}, Fee Amount (ETH): ${web3.utils.fromWei(feeAmount, 'ether')}`;
+                const sentMessageElement = document.createElement("p");
+                sentMessageElement.textContent = sentMessage;
+                document.getElementById("receivedMessages").appendChild(sentMessageElement);
 
-            // Clear input fields
-            document.getElementById("toChainId").value = "";
-            document.getElementById("toAddress").value = "";
-            document.getElementById("message").value = "";
-            document.getElementById("feeAmount").value = "";
+                // Clear input fields
+                document.getElementById("toChainId").value = "";
+                document.getElementById("toAddress").value = "";
+                document.getElementById("message").value = "";
+                document.getElementById("feeAmount").value = "";
+            } catch (error) {
+                // Transaction failed, handle the error
+                console.error("Transaction Error:", error.message);
+            }
         }
+
+        // Initialize Web3 when the page loads
+        window.addEventListener('load', function () {
+            initWeb3();
+        });
     </script>
 </body>
 </html>
