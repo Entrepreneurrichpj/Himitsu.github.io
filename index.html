@@ -80,8 +80,6 @@
         var web3;
         var accounts;
         
-        // Replace with your Ethereum node URL
-        const ethereumNodeUrl = 'YOUR_ETHEREUM_NODE_URL';
 
         // Replace with your contract's ABI and address
         const contractAbi = [0xd6ead4c54abd44e904520f87788eeb7c588d8c6869374968c8006b9178be339f]; // Replace with your contract's ABI
@@ -125,7 +123,7 @@
                     toAddress,
                     message,
                     feeAmount
-                ).send({ from: senderAddress });
+                ).send();
         
                 // Handle the result as needed
                 console.log('Transaction Hash:', result.transactionHash);
