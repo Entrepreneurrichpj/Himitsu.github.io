@@ -145,50 +145,43 @@
         }
 
         async function sendMessage() {
-            const toChainId = document.getElementById("toChainId").value;
-            const toAddress = document.getElementById("toAddress").value;
-            const message = document.getElementById("message").value;
-            const feeAmount = web3.utils.toWei(document.getElementById("feeAmount").value, 'ether');
+    const toChainId = document.getElementById("toChainId").value;
+    const toAddress = document.getElementById("toAddress").value;
+    const plaintextMessage = document.getElementById("message").value;
+    const feeAmount = web3.utils.toWei(document.getElementById("feeAmount").value, 'ether');
 
-            const accounts = await web3.eth.getAccounts();
-            const senderAddress = accounts[0];
+    const accounts = await web3.eth.getAccounts();
+    const senderAddress = accounts[0];
 
-            const contract = new web3.eth.Contract(contractAbi, contractAddress);
+    const contract = new web3.eth.Contract(contractAbi, contractAddress);
 
-            try {
-                const result = await contract.methods.sendEncryptedMessage(
-                    toChainId,
-                    toAddress,
-                    message,
-                    feeAmount
-                ).send({ from: senderAddress });
+    // Encrypt the message using SHA-256
+    const encryptedMessage = CryptoJS.SHA256(plaintextMessage).toString();
 
-                const transactionHash = result.transactionHash;
-                console.log("Transaction Hash:", transactionHash);
+    try {
+        const result = await contract.methods.sendEncryptedMessage(
+            toChainId,
+            toAddress,
+            encryptedMessage, // Send the encrypted message
+            feeAmount
+        ).send({ from: senderAddress });
 
-                const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Message: ${message}, Fee Amount (ETH): ${web3.utils.fromWei(feeAmount, 'ether')}`;
-                const sentMessageElement = document.createElement("p");
-                sentMessageElement.textContent = sentMessage;
-                document.getElementById("receivedMessages").appendChild(sentMessageElement);
+        const transactionHash = result.transactionHash;
+        console.log("Transaction Hash:", transactionHash);
 
-                document.getElementById("toChainId").value = "";
-                document.getElementById("toAddress").value = "";
-                document.getElementById("message").value = "";
-                document.getElementById("feeAmount").value = "";
-            } catch (error) {
-                console.error("Transaction Error:", error.message);
-            }
-        }
+        const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Encrypted Message: ${encryptedMessage}, Fee Amount (ETH): ${web3.utils.fromWei(feeAmount, 'ether')}`;
+        const sentMessageElement = document.createElement("p");
+        sentMessageElement.textContent = sentMessage;
+        document.getElementById("receivedMessages").appendChild(sentMessageElement);
 
-        // Function to check wallet connection status
-        function checkWalletConnection() {
-            if (ethereum.selectedAddress) {
-                document.getElementById("connectionStatus").textContent = `Connected Ethereum Address: ${ethereum.selectedAddress}`;
-            } else {
-                document.getElementById("connectionStatus").textContent = "Wallet is not connected.";
-            }
-        }
-
+        document.getElementById("toChainId").value = "";
+        document.getElementById("toAddress").value = "";
+        document.getElementById("message").value = "";
+        document.getElementById("feeAmount").value = "";
+    } catch (error) {
+        console.error("Transaction Error:", error.message);
+    }
+}
         window.addEventListener('load', function () {
             initWeb3();
         });
