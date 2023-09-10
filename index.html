@@ -70,18 +70,27 @@
     <button onclick="checkWalletConnection()">Check Wallet Connection</button>
     <div id="connectionStatus"></div>
 
-    <!-- Include WalletConnect library -->
+    <!-- Include WalletConnect and Web3.js libraries -->
     <script src="https://cdn.jsdelivr.net/npm/walletconnect-browser@1.1.4/dist/walletconnect.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
     <script>
         var web3;
         var accounts;
+        
+        // Replace with your Ethereum node URL
+        const ethereumNodeUrl = 'YOUR_ETHEREUM_NODE_URL';
 
-        async function connectWallet() {
-            if (typeof web3 !== 'undefined') {
-                web3 = new Web3(web3.currentProvider);
+        // Replace with your contract's ABI and address
+        const contractAbi = [0xd6ead4c54abd44e904520f87788eeb7c588d8c6869374968c8006b9178be339f]; // Replace with your contract's ABI
+        const contractAddress = '0x8abdc2cBf215cD242b61A4C748aa5647240817D6'; // Replace with your contract's address
+        
+        // Initialize Web3.js
+        async function initWeb3() {
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.autoRefreshOnNetworkChange = false;
+                web3 = new Web3(window.ethereum);
                 try {
+                    // Request account access
                     accounts = await web3.eth.requestAccounts();
                     document.getElementById('connectionStatus').textContent = 'Connected to Wallet';
                 } catch (error) {
@@ -89,22 +98,46 @@
                     document.getElementById('connectionStatus').textContent = 'Failed to Connect to Wallet';
                 }
             } else {
-                document.getElementById('connectionStatus').textContent = 'Web3 not available. Please install MetaMask or use a compatible Ethereum wallet.';
+                document.getElementById('connectionStatus').textContent = 'MetaMask or a compatible Ethereum wallet is not installed.';
             }
         }
 
-        function sendMessage() {
+        // Function to connect the wallet
+        async function connectWallet() {
+            if (!web3) {
+                await initWeb3();
+            }
+        }
+
+        // Function to send a message
+        async function sendMessage() {
+            if (!web3) {
+                await initWeb3();
+            }
+            
             // Your code for sending the message using web3.eth.sendTransaction
             // Example:
-            // var toChainId = document.getElementById('toChainId').value;
-            // var toAddress = document.getElementById('toAddress').value;
-            // var message = document.getElementById('message').value;
-            // var feeAmount = document.getElementById('feeAmount').value;
-            // var senderAddress = accounts[0];
+            const toChainId = document.getElementById('toChainId').value;
+            const toAddress = document.getElementById('toAddress').value;
+            const message = document.getElementById('message').value;
+            const feeAmount = document.getElementById('feeAmount').value;
+            const senderAddress = accounts[0];
 
             // Your code here to send the message using web3.eth.sendTransaction
-
-            // After sending, update the UI to display a confirmation or error message
+            web3.eth.sendTransaction()
+                .on('transactionHash', (hash) => {
+                    console.log('Transaction Hash:', hash);
+                })
+                .on('receipt', (receipt) => {
+                    console.log('Transaction Receipt:', receipt);
+                    // Update the UI to display a confirmation or error message
+                    document.getElementById('receivedMessages').textContent = `Message sent: ${message}`;
+                })
+                .on('error', (error) => {
+                    console.error('Transaction Error:', error);
+                    // Handle the error and update the UI with an error message
+                    document.getElementById('receivedMessages').textContent = `Error: ${error.message}`;
+                });
         }
 
         // Function to check wallet connection status
@@ -115,6 +148,9 @@
                 document.getElementById('connectionStatus').textContent = 'Not connected to a wallet';
             }
         }
+
+        // Initialize Web3.js
+        initWeb3();
     </script>
 </body>
 </html>
