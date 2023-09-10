@@ -19,13 +19,18 @@
     <label for="feeAmount">Fee Amount (ETH):</label>
     <input type="number" id="feeAmount" placeholder="Enter Fee Amount"><br>
 
+    <button onclick="connectWallet()">Connect Wallet</button>
     <button onclick="sendMessage()">Send Message</button>
 
     <!-- Display received messages -->
     <h2>Received Messages:</h2>
     <div id="receivedMessages"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <!-- Added function to check wallet connection -->
+    <button onclick="checkWalletConnection()">Check Wallet Connection</button>
+    <div id="connectionStatus"></div>
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
 
     <script>
         // Replace with the actual contract address and ABI
@@ -39,19 +44,36 @@
         const ethereumNodeUrl = "YOUR_ETHEREUM_NODE_URL";
 
         async function initWeb3() {
-            // Check if Web3 is already present
             if (typeof web3 !== 'undefined') {
                 window.web3 = new Web3(web3.currentProvider);
             } else {
-                // If no injected web3 instance is detected, fallback to the node URL
                 window.web3 = new Web3(new Web3.providers.HttpProvider(ethereumNodeUrl));
             }
 
-            // Check if the user is connected to MetaMask or another provider
             const accounts = await web3.eth.getAccounts();
 
             if (accounts.length === 0) {
                 alert("Please connect to MetaMask or another Ethereum wallet.");
+            } else {
+                const userAddress = accounts[0];
+                // You can also update a UI element to display the user's address.
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                // Request user's permission to connect their Ethereum wallet
+                await ethereum.request({ method: 'eth_requestAccounts' });
+                
+                // Check if the user is connected
+                if (ethereum.selectedAddress) {
+                    const userAddress = ethereum.selectedAddress;
+                    alert(`Connected Ethereum Address: ${userAddress}`);
+                } else {
+                    alert("Wallet connection was canceled or failed.");
+                }
+            } catch (error) {
+                console.error("Wallet Connection Error:", error.message);
             }
         }
 
@@ -59,17 +81,14 @@
             const toChainId = document.getElementById("toChainId").value;
             const toAddress = document.getElementById("toAddress").value;
             const message = document.getElementById("message").value;
-            const feeAmount = web3.utils.toWei(document.getElementById("feeAmount").value, 'ether'); // Convert to Wei
+            const feeAmount = web3.utils.toWei(document.getElementById("feeAmount").value, 'ether');
 
-            // Get the sender's Ethereum address
             const accounts = await web3.eth.getAccounts();
-            const senderAddress = accounts[0]; // Assuming the first account is the sender
+            const senderAddress = accounts[0];
 
-            // Create a contract instance
             const contract = new web3.eth.Contract(contractAbi, contractAddress);
 
             try {
-                // Send the message to the smart contract
                 const result = await contract.methods.sendEncryptedMessage(
                     toChainId,
                     toAddress,
@@ -77,28 +96,32 @@
                     feeAmount
                 ).send({ from: senderAddress });
 
-                // Transaction was successful
                 const transactionHash = result.transactionHash;
                 console.log("Transaction Hash:", transactionHash);
 
-                // Display the sent message
                 const sentMessage = `To Chain ID: ${toChainId}, To Address: ${toAddress}, Message: ${message}, Fee Amount (ETH): ${web3.utils.fromWei(feeAmount, 'ether')}`;
                 const sentMessageElement = document.createElement("p");
                 sentMessageElement.textContent = sentMessage;
                 document.getElementById("receivedMessages").appendChild(sentMessageElement);
 
-                // Clear input fields
                 document.getElementById("toChainId").value = "";
                 document.getElementById("toAddress").value = "";
                 document.getElementById("message").value = "";
                 document.getElementById("feeAmount").value = "";
             } catch (error) {
-                // Transaction failed, handle the error
                 console.error("Transaction Error:", error.message);
             }
         }
 
-        // Initialize Web3 when the page loads
+        // Function to check wallet connection status
+        function checkWalletConnection() {
+            if (ethereum.selectedAddress) {
+                document.getElementById("connectionStatus").textContent = `Connected Ethereum Address: ${ethereum.selectedAddress}`;
+            } else {
+                document.getElementById("connectionStatus").textContent = "Wallet is not connected.";
+            }
+        }
+
         window.addEventListener('load', function () {
             initWeb3();
         });
